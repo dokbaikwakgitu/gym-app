@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique @db.VarChar(25)
+  email     String   @unique @db.VarChar(255)
+  phone     String   @unique @db.VarChar(20)
+  password  String   @db.VarChar(255)
+  role      String   @db.VarChar(20)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  memberships Membership[] // ← one user has many memberships
+  bookings    Booking[] // ← one user has many bookings
+
+  @@map("user")
+}
+
+model Plan {
+  id        Int     @id @default(autoincrement())
+  name      String  @db.VarChar(255)
+  dayQuota  Int?    @map("day_quota")
+  price     Int
+  desc      String  @db.VarChar(255)
+  famAccess Boolean @default(false) @map("fam_access")
+
+  memberships Membership[]
+
+  @@map("plan")
+}
+
+model Class {
+  id              Int      @id @default(autoincrement())
+  name            String   @db.VarChar(255)
+  instructorName  String   @map("instructor_name") @db.VarChar(255)
+  startAt         DateTime @map("start_at")
+  durationMinutes Int      @map("duration_minutes")
+  capacity        Int
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  bookings Booking[]
+
+  @@map("class")
+}
+
+model Membership {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @map("user_id")
+  planId    Int       @map("plan_id")
+  startDate DateTime  @map("start_date") @db.Date
+  endDate   DateTime? @map("end_date") @db.Date
+  status    String    @default("active") @db.VarChar(20)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+  plan Plan @relation(fields: [planId], references: [id])
+
+  @@map("membership")
+}
+
+model Booking {
+  id       Int      @id @default(autoincrement())
+  userId   Int      @map("user_id")
+  classId  Int      @map("class_id")
+  bookedAt DateTime @default(now()) @map("booked_at")
+  status   String   @default("booked") @db.VarChar(20)
+
+  user     User  @relation(fields: [userId], references: [id])
+  gymClass Class @relation(fields: [classId], references: [id])
+
+  @@unique([userId, classId])
+  @@map("booking")
+}
