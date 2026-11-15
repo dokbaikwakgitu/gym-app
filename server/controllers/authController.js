@@ -48,3 +48,38 @@ export const signup = catchAsync(async (req, res, next) => {
   });
   createSendToken(newUser, 201, res);
 });
+//--------------------NEW SECTION--------------------
+// POST /api/v1/auth/login
+export const login = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  //1) check if email and password are provided
+  if (!email || !password) {
+    return res.status(400).json({
+      status: "fail",
+      message: "Please provide email and password",
+    });
+  }
+
+  //2) check if user exists && password is correct
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  // same generic message for both cases so we don't reveal which one is wrong
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return res.status(401).json({
+      status: "fail",
+      message: "Incorrect email or password",
+    });
+  }
+
+  //3) user is deactivated -> do not issue a token
+  if (!user.active) {
+    return res.status(403).json({
+      status: "fail",
+      message: "This account has been deactivated",
+    });
+  }
+
+  //4) everything is ok -> send token to client (cookie + response body)
+  createSendToken(user, 200, res);
+});
