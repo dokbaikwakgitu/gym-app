@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import catchAsync from '../utils/catchAsync.js';
 import prisma from '../prisma/client.js';
 import { promisify } from 'util';
+import AppError from '../utils/appError.js';
 
 //--------------------NEW SECTION--------------------
 const signToken = (id) => {
@@ -130,3 +131,14 @@ export const protect = catchAsync(async (req, res, next) => {
   req.user = currentUser; // passing currentuser to next route
   next();
 });
+
+export const restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('You do not have permission to perform this action', 403),
+      );
+    }
+    next();
+  };
+};
