@@ -1,7 +1,8 @@
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-import catchAsync from "../utils/catchAsync.js";
-import prisma from "../prisma/client.js";
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import catchAsync from '../utils/catchAsync.js';
+import prisma from '../prisma/client.js';
+import { promisify } from 'util';
 
 //--------------------NEW SECTION--------------------
 const signToken = (id) => {
@@ -20,12 +21,12 @@ const createSendToken = (user, statusCode, res) => {
     httpOnly: true,
   };
 
-  res.cookie("jwt", token, cookieOptions);
+  res.cookie('jwt', token, cookieOptions);
 
   const { password, ...userWithoutPassword } = user; //destructure user object into password and others object
 
   res.status(statusCode).json({
-    status: "success",
+    status: 'success',
     token,
     data: {
       user: userWithoutPassword,
@@ -43,7 +44,7 @@ export const signup = catchAsync(async (req, res, next) => {
       email,
       phone,
       password: hashedPassword,
-      role: "member",
+      role: 'member',
     },
   });
   createSendToken(newUser, 201, res);
@@ -56,8 +57,8 @@ export const login = catchAsync(async (req, res, next) => {
   //1) check if email and password are provided
   if (!email || !password) {
     return res.status(400).json({
-      status: "fail",
-      message: "Please provide email and password",
+      status: 'fail',
+      message: 'Please provide email and password',
     });
   }
 
@@ -67,19 +68,65 @@ export const login = catchAsync(async (req, res, next) => {
   // same generic message for both cases so we don't reveal which one is wrong
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({
-      status: "fail",
-      message: "Incorrect email or password",
+      status: 'fail',
+      message: 'Incorrect email or password',
     });
   }
 
   //3) user is deactivated -> do not issue a token
   if (!user.active) {
     return res.status(403).json({
-      status: "fail",
-      message: "This account has been deactivated",
+      status: 'fail',
+      message: 'This account has been deactivated',
     });
   }
 
   //4) everything is ok -> send token to client (cookie + response body)
   createSendToken(user, 200, res);
+});
+
+//--------------------VERIFYING TOKEN--------------------
+export const protect = catchAsync(async (req, res, next) => {
+  //1) getting the token and check it
+  let token;
+  console.log('this is header log!!', req.headers);
+  if (
+    req.headers.authorization &&
+    req.headers.authorization?.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1]; //for non browswer client
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  } //get the jwt from cookies
+
+  if (!token) {
+    return next(new AppError('You are not logged in!', 401));
+  }
+
+  //2) verify the token - We sign payload + JWT_SECRET to create the token, send only the token to the client, and keep the secret locked on the server
+  const newPromise = promisify(jwt.verify);
+  const decoded = await newPromise(token, process.env.JWT_SECRET);
+  console.log('decoded:', decoded);
+
+  //3) check if the user still exist -- jwt is stateless(save on client) deleted user token will still be alive until expired
+  const currentUser = await prisma.user.findUnique({
+    where: { id: decoded.id },
+  });
+
+  if (!currentUser) {
+    return next(
+      new AppError('The user belonging this token is no longer existed', 401),
+    );
+  }
+
+  if (
+    currentUser.passwordChangedAt &&
+    decoded.iat * 1000 < currentUser.passwordChangedAt.getTime()
+  ) {
+    return next(
+      new AppError('User recently changed password! Please log in again.', 401),
+    );
+  }
+  req.user = currentUser; // passing currentuser to next route
+  next();
 });
