@@ -4,9 +4,11 @@ import { restrictTo, protect } from '../controllers/authController.js';
 
 const router = express.Router();
 
-//--------------------restricted route--------------------
+router
+  .route('/:id')
+  .get(protect, classController.getClass)
+  .patch(protect, restrictTo('admin'), classController.updateClass);
 
-//--------------------public route--------------------
 router
   .route('/')
   .get(classController.getAllClasses)

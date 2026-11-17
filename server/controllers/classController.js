@@ -10,6 +10,9 @@ const createClassSchema = z.object({
   durationMinutes: z.coerce.number().int().positive(),
   capacity: z.coerce.number().int().positive(),
 });
+
+// id comes from the URL (PATCH /api/v1/classes/:id), so every field is optional.
+// unknown keys (id, createdAt...) are stripped by zod and can never be updated.
 //--------------------NEW SECTION--------------------
 export const getAllClasses = catchAsync(async (req, res, next) => {
   //will do pagination later.. maybe
@@ -59,5 +62,90 @@ export const getClass = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: { findClass },
+  });
+});
+
+//--------------------NEW SECTION--------------------
+// export const updateClass = catchAsync(async (req, res, next) => {
+// const updateClassSchema = createClassSchema.partial();
+
+//   //1) the id comes from the URL, not the body
+//   const id = Number(req.params.id);
+
+//   if (!Number.isInteger(id) || id <= 0) {
+//     return next(new AppError('Invalid ID format', 400));
+//   }
+
+//   //2) validate the body - all fields are optional but at least one is required
+//   const result = updateClassSchema.safeParse(req.body);
+
+//   if (!result.success) {
+//     return next(new AppError(result.error.issues[0].message, 400));
+//   }
+
+// if (Object.keys(result.data).length === 0) {
+//   return next(new AppError('Please provide at least one field to update', 400));
+// }
+
+//   //3) check if the class exists
+//   const classID = await prisma.class.findUnique({
+//     where: { id },
+//   });
+
+//   if (!classID) {
+//     return next(new AppError('No class found with that id', 404));
+//   }
+
+//   //4) update only the validated fields (awaited!)
+//   const updatedClass = await prisma.class.update({
+//     where: { id },
+//     data: result.data,
+//   });
+
+//   //5) send the updated class back
+//   res.status(200).json({
+//     status: 'success',
+//     data: { class: updatedClass },
+//   });
+// });
+
+export const updateClass = catchAsync(async (req, res, next) => {
+  const updateClassSchema = createClassSchema.partial();
+
+  const id = Number(req.params.id);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    return next(new AppError('Invalid ID format', 404));
+  }
+
+  const result = updateClassSchema.safeParse(req.body);
+  // console.log('updateClassScheme:', result);
+  // console.log('errorByZod:', result.error);
+
+  if (!result.success) {
+    //zod built in property .success
+    return next(new AppError(result.error.issues[0].message, 400));
+  }
+
+  if (Object.keys(result.data).length === 0) {
+    return next(new AppError('Please insert at least one field', 400));
+  }
+
+  const classID = await prisma.class.findUnique({
+    where: { id },
+  });
+
+  if (!classID) {
+    return next(new AppError('No class founded witht that id', 404));
+  }
+
+  const updateClass = await prisma.class.update({
+    where: { id },
+    data: result.data,
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: { class: updateClass },
   });
 });
