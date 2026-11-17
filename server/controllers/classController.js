@@ -11,6 +11,8 @@ const createClassSchema = z.object({
   capacity: z.coerce.number().int().positive(),
 });
 
+const updateClassSchema = createClassSchema.partial();
+
 // id comes from the URL (PATCH /api/v1/classes/:id), so every field is optional.
 // unknown keys (id, createdAt...) are stripped by zod and can never be updated.
 //--------------------NEW SECTION--------------------
@@ -45,77 +47,31 @@ export const getClass = catchAsync(async (req, res, next) => {
   //probably will add filter,sort,limitfield,paginate.... probably...PROBABLY
   const id = Number(req.params.id);
 
-  if (!Number.isInteger(id) || id <= 0) {
-    return next(new AppError('Invalid ID form', 400));
+  if (!Number.isSafeInteger(id) || id <= 0 || id > 2_147_483_647) {
+    return next(new AppError('Invalid ID format', 400));
   }
 
-  const findClass = await prisma.class.findUnique({
+  const foundClass = await prisma.class.findUnique({
     where: { id },
   });
 
   //1) check if result exist
-  if (!findClass) {
-    return next(new AppError('No class found witht that id!', 404));
+  if (!foundClass) {
+    return next(new AppError('No class found with that id!', 404));
   }
 
   //2)success
   res.status(200).json({
     status: 'success',
-    data: { findClass },
+    data: { class: foundClass },
   });
 });
 
-//--------------------NEW SECTION--------------------
-// export const updateClass = catchAsync(async (req, res, next) => {
-// const updateClassSchema = createClassSchema.partial();
-
-//   //1) the id comes from the URL, not the body
-//   const id = Number(req.params.id);
-
-//   if (!Number.isInteger(id) || id <= 0) {
-//     return next(new AppError('Invalid ID format', 400));
-//   }
-
-//   //2) validate the body - all fields are optional but at least one is required
-//   const result = updateClassSchema.safeParse(req.body);
-
-//   if (!result.success) {
-//     return next(new AppError(result.error.issues[0].message, 400));
-//   }
-
-// if (Object.keys(result.data).length === 0) {
-//   return next(new AppError('Please provide at least one field to update', 400));
-// }
-
-//   //3) check if the class exists
-//   const classID = await prisma.class.findUnique({
-//     where: { id },
-//   });
-
-//   if (!classID) {
-//     return next(new AppError('No class found with that id', 404));
-//   }
-
-//   //4) update only the validated fields (awaited!)
-//   const updatedClass = await prisma.class.update({
-//     where: { id },
-//     data: result.data,
-//   });
-
-//   //5) send the updated class back
-//   res.status(200).json({
-//     status: 'success',
-//     data: { class: updatedClass },
-//   });
-// });
-
 export const updateClass = catchAsync(async (req, res, next) => {
-  const updateClassSchema = createClassSchema.partial();
-
   const id = Number(req.params.id);
 
-  if (!Number.isInteger(id) || id <= 0) {
-    return next(new AppError('Invalid ID format', 404));
+  if (!Number.isSafeInteger(id) || id <= 0 || id > 2_147_483_647) {
+    return next(new AppError('Invalid ID format', 400));
   }
 
   const result = updateClassSchema.safeParse(req.body);
@@ -131,21 +87,30 @@ export const updateClass = catchAsync(async (req, res, next) => {
     return next(new AppError('Please insert at least one field', 400));
   }
 
-  const classID = await prisma.class.findUnique({
-    where: { id },
-  });
-
-  if (!classID) {
-    return next(new AppError('No class founded witht that id', 404));
-  }
-
-  const updateClass = await prisma.class.update({
+  const updatedClass = await prisma.class.update({
     where: { id },
     data: result.data,
   });
 
   res.status(200).json({
     status: 'success',
-    data: { class: updateClass },
+    data: { class: updatedClass },
   });
 });
+
+export const deleteClass = catchAsync(async (req, res, next) => {
+  //1. find the id
+  const id = Number(req.params.id);
+
+  if (!Number.isSafeInteger(id) || id <= 0 || id > 2_147_483_647) {
+    return next(new AppError('Invalid ID format', 400));
+  }
+
+  const result = await prisma.class.delete({
+    where: { id },
+  });
+
+  //2.success deleting
+  res.status(204).send();
+});
+

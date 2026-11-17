@@ -7,7 +7,8 @@ const router = express.Router();
 router
   .route('/:id')
   .get(protect, classController.getClass)
-  .patch(protect, restrictTo('admin'), classController.updateClass);
+  .patch(protect, restrictTo('admin'), classController.updateClass)
+  .delete(protect, restrictTo('admin'), classController.deleteClass);
 
 router
   .route('/')
