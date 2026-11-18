@@ -6,6 +6,7 @@ const router = express.Router();
 
 router
   .route('/')
-  .post(protect, restrictTo('member'), membershipController.buyPlan);//self-purchase route
+  .post(protect, restrictTo('member'), membershipController.buyPlan) //self-purchase route
+  .get(protect, restrictTo('member'), membershipController.getMyMembership);
 
 export default router;
