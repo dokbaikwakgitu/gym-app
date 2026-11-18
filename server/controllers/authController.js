@@ -90,7 +90,7 @@ export const login = catchAsync(async (req, res, next) => {
 export const protect = catchAsync(async (req, res, next) => {
   //1) getting the token and check it
   let token;
-  console.log('this is header log!!', req.headers);
+  // console.log('this is header log!!', req.headers);
   if (
     req.headers.authorization &&
     req.headers.authorization?.startsWith('Bearer')
@@ -120,6 +120,12 @@ export const protect = catchAsync(async (req, res, next) => {
     );
   }
 
+  // 4) account disabled or deactivated(banned/ disabled by admin/or deleted)
+  if(!currentUser.active){
+    return next(new AppError('This account has been deactivated',403))
+  }
+
+  //5) password changed after this token was issueed
   if (
     currentUser.passwordChangedAt &&
     decoded.iat * 1000 < currentUser.passwordChangedAt.getTime()
