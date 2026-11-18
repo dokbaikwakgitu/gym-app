@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "class" ADD COLUMN     "price" INTEGER NOT NULL DEFAULT 0;

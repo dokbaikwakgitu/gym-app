@@ -8,6 +8,7 @@ import userRoute from './routes/userRoute.js';
 import classRoute from './routes/classRoute.js';
 import membershipRoute from './routes/membershipRoute.js';
 import planRoute from './routes/planRoute.js';
+import bookingRoute from './routes/bookingRoute.js';
 
 import { globalErrorHandler } from './controllers/errorController.js';
 const app = express();
@@ -32,7 +33,8 @@ app.use(express.json()); // parse JSON bodies
 //-- INITIALIZING SUBS ROUTE HANDLER--
 app.use('/api/v1/auth', authRoute);
 app.use('/api/v1/users', userRoute);
-app.use('/api/v1/member', membershipRoute);
+app.use('/api/v1/memberships', membershipRoute);
+app.use('/api/v1/bookings', bookingRoute);
 app.use('/api/v1/classes', classRoute);
 app.use('/api/v1/plans', planRoute);
 
