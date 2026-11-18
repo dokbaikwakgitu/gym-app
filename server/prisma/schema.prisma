@@ -22,6 +22,7 @@ model User {
   role      String   @db.VarChar(20)
   active    Boolean  @default(true)
   createdAt DateTime @default(now()) @map("created_at")
+  passwordChangedAt DateTime? @map("password_changed_at")
 
   memberships Membership[] // ← one user has many memberships
   bookings    Booking[] // ← one user has many bookings
@@ -30,12 +31,13 @@ model User {
 }
 
 model Plan {
-  id        Int     @id @default(autoincrement())
-  name      String  @db.VarChar(255)
-  dayQuota  Int?    @map("day_quota")
-  price     Int
-  desc      String  @db.VarChar(255)
-  famAccess Boolean @default(false) @map("fam_access")
+  id              Int     @id @default(autoincrement())
+  name            String  @db.VarChar(255)
+  price           Int
+  desc            String  @db.VarChar(255)
+  famAccess       Boolean @default(false) @map("fam_access")
+  durationDays    Int     @map("duration_days")
+  isFirstTimeOnly Boolean @default(false) @map("is_first_time_only")
 
   memberships Membership[]
 
