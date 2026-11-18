@@ -28,7 +28,6 @@ export const buyPlan = catchAsync(async (req, res, next) => {
 
   // find im membership row that have this id that currently active
   const today = new Date();
-  today.setUTCHours(0, 0, 0, 0);
   const activeMembership = await prisma.membership.findFirst({
     where: {
       userId: req.user.id,
@@ -41,12 +40,18 @@ export const buyPlan = catchAsync(async (req, res, next) => {
     return next(new AppError('You already have active membership', 409));
   }
 
-  //create the membership - Plan has no duration column yet, so endDate
-  // stays null. Once you add one (e.g. durationDays), compute it here.
-  const startDate = new Date(); // today
+  const pastCount = await prisma.membership.count({
+    where: { userId: req.user.id },
+  });
+  if (plan.isFirstTimeOnly && pastCount > 0) {
+    return next(new AppError('This plan is for first-time members only', 403));
+  }
+
+  const startDate = new Date();
   const endDate = new Date(startDate);
   endDate.setUTCDate(endDate.getUTCDate() + plan.durationDays - 1); //last valid date
 
+  //--------------------CREATE A PAID LOGIC LATER ON,FOR NOW LET DO MOCK--------------------
   const membership = await prisma.membership.create({
     data: {
       userId: req.user.id,
