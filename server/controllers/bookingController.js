@@ -76,3 +76,59 @@ export const bookingClass = catchAsync(async (req, res, next) => {
     data: { newBooking },
   });
 });
+
+export const getMyBooking = catchAsync(async (req, res, next) => {
+  const currentUserId = Number(req.user.id);
+
+  const classBooked = await prisma.booking.findMany({
+    //#findMany never return falsy
+    where: { userId: currentUserId, status: 'booked' },
+    include: { gymClass: true },
+    orderBy: { gymClass: { startAt: 'asc' } },
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: { classBooked },
+  });
+});
+//--------------------NEW SECTION--------------------
+export const cancelBooking = catchAsync(async (req, res, next) => {
+  const bookingId = Number(req.params.id);
+
+  if (!Number.isSafeInteger(bookingId) || bookingId <= 0) {
+    return next(new AppError('Parameter is Not valid Integer', 400));
+  }
+
+  const booking = await prisma.booking.findFirst({
+    where: { id: bookingId, status: 'booked' },
+  });
+
+  if (!booking) {
+    return next(new AppError('No booking found with that id! ', 404));
+  }
+
+  if (booking.userId !== req.user.id) {
+    return next(new AppError('this is not your booking!', 403));
+  }
+
+  const findClass = await prisma.class.findUnique({
+    where: { id: booking.classId },
+  });
+
+  if (findClass.startAt <= new Date()) {
+    return next(new AppError('Class started!', 400));
+  }
+
+  const result = await prisma.booking.update({
+    where: { id: bookingId },
+    data: { status: 'cancelled' },
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      result,
+    },
+  });
+});

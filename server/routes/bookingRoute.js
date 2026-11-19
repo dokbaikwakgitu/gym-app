@@ -6,6 +6,8 @@ const router = express.Router();
 
 router
   .route('/')
+  .get(protect,bookingController.getMyBooking)
   .post(protect, restrictTo('member'), bookingController.bookingClass);
 
+router.patch('/:id/cancel',protect,bookingController.cancelBooking)
 export default router;
