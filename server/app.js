@@ -16,7 +16,7 @@ const app = express();
 app.use(
   // allow react to call this file(express api)
   cors({
-    origin: 'http://localhost:3000', // React app
+    origin: 'http://localhost:5173', // Vite React app
     credentials: true, // allow cookies
   }),
 );

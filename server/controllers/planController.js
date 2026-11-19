@@ -5,10 +5,11 @@ import { z } from 'zod';
 
 const createPlanSchema = z.object({
   name: z.string().min(1),
-  dayQuota: z.coerce.number().int().min(1),
+  durationDays: z.coerce.number().int().min(1),
   price: z.coerce.number().int().min(1),
   desc: z.string().min(1),
   famAccess: z.boolean(),
+  isFirstTimeOnly: z.boolean().default(false),
 });
 
 export const createPlan = catchAsync(async (req, res, next) => {

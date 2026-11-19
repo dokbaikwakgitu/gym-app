@@ -52,6 +52,7 @@ model Class {
   durationMinutes Int      @map("duration_minutes")
   capacity        Int
   createdAt       DateTime @default(now()) @map("created_at")
+  price           Int      @default(0) @map("price")
 
   bookings Booking[]
 

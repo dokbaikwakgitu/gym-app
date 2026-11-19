@@ -2,7 +2,7 @@ import catchAsync from '../utils/catchAsync.js';
 import prisma from '../prisma/client.js';
 import AppError from '../utils/appError.js';
 
-// fields that are safe to send to the client (never expose password)
+// (never expose password)
 const userSelect = {
   id: true,
   username: true,
