@@ -4,6 +4,9 @@ import { restrictTo, protect } from '../controllers/authController.js';
 
 const router = express.Router();
 
-router.route('/').post(protect, restrictTo('admin'), planController.createPlan);
+router
+  .route('/')
+  .post(protect, restrictTo('admin'), planController.createPlan)
+  .get(planController.getAllPlan);
 
 export default router;

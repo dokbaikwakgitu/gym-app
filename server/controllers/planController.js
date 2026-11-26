@@ -28,3 +28,12 @@ export const createPlan = catchAsync(async (req, res, next) => {
     data: { plan: createdPlan },
   });
 });
+
+export const getAllPlan = catchAsync(async (req, res, next) => {
+  const data = await prisma.plan.findMany();
+
+  res.status(200).json({
+    status: 'success',
+    data,
+  });
+});
