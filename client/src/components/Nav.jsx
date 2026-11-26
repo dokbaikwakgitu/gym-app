@@ -1,8 +1,8 @@
 import { NavLink } from 'react-router-dom';
-
-function BurgerNav() {
+import { cn } from '@/lib/utils';
+function Nav({ className }) {
   return (
-    <ul className="flex flex-col gap-4 p-4 lg:hidden">
+    <ul className={cn(className)}>
       <li>
         <NavLink to="/">Home</NavLink>
       </li>
@@ -13,7 +13,7 @@ function BurgerNav() {
         <NavLink to="/pricing">Pricing</NavLink>
       </li>
       <li>
-        <NavLink to="/location">Locate Us</NavLink>
+        <NavLink to="/locate-us">Locate Us</NavLink>
       </li>
       <li>
         <NavLink to="/contact-us">Contact Us</NavLink>
@@ -22,4 +22,5 @@ function BurgerNav() {
   );
 }
 
-export default BurgerNav;
+export default Nav;
+// className="flex flex-col gap-4 p-4 lg:hidden"

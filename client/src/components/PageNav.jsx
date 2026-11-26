@@ -4,8 +4,8 @@ import { Button } from './ui/button.jsx';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
-import BurgerNav from './BurgerNav.jsx';
-import { reviews } from './Reviews.jsx';
+import Nav from './Nav.jsx';
+import { reviews } from './Reviews.jsx'; //might fetch from database... maybe ...probably
 
 function PageNav() {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,23 +13,7 @@ function PageNav() {
   return (
     <nav className="flex items-center justify-between lg:justify-around bg-[#ad9405] p-2.5">
       <Logo className="h-[30px] sm:h-[50px]" />
-      <ul className="items-center gap-16 hidden lg:flex">
-        <li>
-          <NavLink to="/">Home</NavLink>
-        </li>
-        <li>
-          <NavLink to="/classes">Classes</NavLink>
-        </li>
-        <li>
-          <NavLink to="/pricing">Pricing</NavLink>
-        </li>
-        <li>
-          <NavLink to="/location">Locate Us</NavLink>
-        </li>
-        <li>
-          <NavLink to="/contact-us">Contact Us</NavLink>
-        </li>
-      </ul>
+      <Nav className="items-center gap-16 hidden lg:flex" />
       <div className="flex items-center gap-1">
         <NavLink to="/login">
           <Avatar className="lg:hidden">
@@ -47,12 +31,14 @@ function PageNav() {
         <Button
           className="w-[30px] sm:w-12 lg:hidden rounded-full"
           onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={isOpen}
         >
-          ≡
+          {isOpen ? <X /> : <Menu />}
         </Button>
       </div>
 
-      {isOpen && <BurgerNav />}
+      {isOpen && <Nav className="flex flex-col gap-4 p-4 lg:hidden" />}
     </nav>
   );
 }
