@@ -13,6 +13,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Location {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  address   String   @db.VarChar(255)
+  latitude  Float   @map("latitude") 
+  longitude Float   @map("longitude") 
+  phone     String?  @db.VarChar(20)
+  hours     String?  @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  classes Class[] // ← one location has many classes
+
+  @@map("location")
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   username  String   @unique @db.VarChar(25)
@@ -46,6 +61,7 @@ model Plan {
 
 model Class {
   id              Int      @id @default(autoincrement())
+  desc            String   @default("No description provided.") @db.VarChar(255)
   name            String   @db.VarChar(255)
   instructorName  String   @map("instructor_name") @db.VarChar(255)
   startAt         DateTime @map("start_at")
@@ -53,7 +69,9 @@ model Class {
   capacity        Int
   createdAt       DateTime @default(now()) @map("created_at")
   price           Int      @default(0) @map("price")
-
+  locationId      Int?      @map("location_id")
+  
+  location Location? @relation(fields: [locationId], references: [id])
   bookings Booking[]
 
   @@map("class")
