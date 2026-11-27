@@ -6,6 +6,7 @@ const router = express.Router();
 
 router
   .route('/')
+  .get(locationContoller.getAllLocations)
   .post(protect, restrictTo('admin'), locationContoller.createLocation);
 
 export default router;

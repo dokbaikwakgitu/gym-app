@@ -26,3 +26,12 @@ export const createLocation = catchAsync(async (req, res, next) => {
     data: { location: createdLocation },
   });
 });
+
+export const getAllLocations = catchAsync(async (req, res, next) => {
+  const result = await prisma.location.findMany();
+
+  res.status(200).json({
+    status: 'success',
+    data: { locations: result },
+  });
+});
