@@ -2,11 +2,12 @@ import PageNav from '../components/PageNav';
 import Footer from '../components/Footer';
 import Section from '../components/Section';
 import LocationCard from '../components/LocationCard';
+import { useState } from 'react';
 
 const dummyLocation = [
   {
     id: 1,
-    name: 'IronPulse Gong Badak',
+    name: 'CatGym Gong Badak',
     state: 'Terengganu',
     district: 'Kuala Nerus',
     address: 'Lot 12, Jalan Gong Badak, 21300 Kuala Nerus, Terengganu',
@@ -17,7 +18,7 @@ const dummyLocation = [
   },
   {
     id: 2,
-    name: 'IronPulse Kampung Jambu',
+    name: 'CatGym Kampung Jambu',
     state: 'Pahang',
     district: 'Pekan',
     address: 'Lot 12, Kampung Jambu, 26600 Pekan, Pahang',
@@ -33,18 +34,36 @@ const dummyLocation = [
 ];
 
 function Location() {
+  const [loc, setLoc] = useState(dummyLocation[0]);
+
   return (
     <main className="min-h-screen flex flex-col">
       <PageNav />
+
       <Section>
         <h1 className="text-3xl font-semibold tracking-tight">Locate Us</h1>
         <p className="mt-2 text-muted-foreground">
-          Our gym locations are coming soon.
+          Our gym locations.
         </p>
         <div className="mt-8 grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
           {dummyLocation.map((location) => (
-            <LocationCard location={location} key={location.id} />
+            <LocationCard
+              location={location}
+              key={location.id}
+              setLoc={setLoc}
+              loc={loc}
+            />
           ))}
+        </div>
+        <div className="mt-8 rounded-xl overflow-hidden border">
+          <iframe
+            key={loc.id}
+            title={loc.name}
+            width="100%"
+            height="350"
+            loading="lazy"
+            src={`https://www.google.com/maps?q=${loc.position.lat},${loc.position.lng}&z=15&output=embed`}
+          ></iframe>
         </div>
       </Section>
       <Footer />
