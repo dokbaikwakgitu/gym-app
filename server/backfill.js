@@ -7,7 +7,7 @@ const main = async () => {
     const result = await prisma.class.updateMany({
       where: {
         locationId: null,
-        instructorName: 'sga',
+        instructorName: 'lebron',
       },
       data: {
         locationId: 1,

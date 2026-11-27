@@ -14,13 +14,13 @@ const createPlanSchema = z.object({
 
 export const createPlan = catchAsync(async (req, res, next) => {
   // parse it bro
-  const result = createPlanSchema.safeParse(req.body);
+  const info = createPlanSchema.safeParse(req.body);
 
-  if (!result.success) {
-    return next(new AppError(result.error.issues[0].message, 400));
+  if (!info.success) {
+    return next(new AppError(info.error.issues[0].message, 400));
   }
   // create the plan
-  const createdPlan = await prisma.plan.create({ data: result.data });
+  const createdPlan = await prisma.plan.create({ data: info.data });
 
   //success
   res.status(201).json({
