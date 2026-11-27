@@ -92,8 +92,8 @@ function Pricing() {
           Membership plans provided...
         </p>
         {isLoading ? (
-          <div>
-            <Spinner />
+          <div className="flex min-h-[60vh] items-center justify-center">
+            <Spinner className="size-12" />
           </div>
         ) : (
           <div className="mt-8 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">

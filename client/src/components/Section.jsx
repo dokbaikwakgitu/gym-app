@@ -9,8 +9,3 @@ function Section({ children }) {
 }
 
 export default Section;
-
-//  <h1 className="text-3xl font-semibold tracking-tight">Classes</h1>
-//       <p className="mt-2 text-muted-foreground ">
-//         Our class schedule is coming soon.
-//       </p>
