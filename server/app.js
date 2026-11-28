@@ -9,7 +9,8 @@ import classRoute from './routes/classRoute.js';
 import membershipRoute from './routes/membershipRoute.js';
 import planRoute from './routes/planRoute.js';
 import bookingRoute from './routes/bookingRoute.js';
-import locationRoute from './routes/locationRoute.js';
+import locationRoute from './routes/LocationRoute.js';
+import enquiryRoute from './routes/enquiryRoute.js';
 
 import { globalErrorHandler } from './controllers/errorController.js';
 const app = express();
@@ -39,6 +40,7 @@ app.use('/api/v1/bookings', bookingRoute);
 app.use('/api/v1/classes', classRoute);
 app.use('/api/v1/plans', planRoute);
 app.use('/api/v1/locations', locationRoute);
+app.use('/api/v1/enquiries', enquiryRoute);
 
 //---------------ERROR HANDLER: must be the last middleware-----------------
 app.use(globalErrorHandler);
