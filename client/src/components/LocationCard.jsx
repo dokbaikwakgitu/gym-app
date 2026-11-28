@@ -9,21 +9,21 @@ import {
 } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 
-function LocationCard({ location, setLoc, loc }) {
+function LocationCard({ item, setLocation, location }) {
   return (
-    <Card className={loc.id === location.id ? 'border border-gray-300' : null}>
+    <Card className={location.id === item.id ? 'border border-gray-300' : null}>
       <CardHeader>
-        <CardTitle>{location.name}</CardTitle>
+        <CardTitle>{item.name}</CardTitle>
       </CardHeader>
       <CardContent>
         <CardDescription className="text-pretty">
-          {location.address}
+          {item.address}
         </CardDescription>
-        <CardDescription>{location.phone}</CardDescription>
-        <CardDescription>{location.hours}</CardDescription>
+        <CardDescription>{item.phone}</CardDescription>
+        <CardDescription>{item.hours}</CardDescription>
       </CardContent>
       <CardFooter className="border-0">
-        <Button onClick={() => setLoc(location)}>View More</Button>
+        <Button onClick={() => setLocation(item)}>View More</Button>
       </CardFooter>
     </Card>
   );
